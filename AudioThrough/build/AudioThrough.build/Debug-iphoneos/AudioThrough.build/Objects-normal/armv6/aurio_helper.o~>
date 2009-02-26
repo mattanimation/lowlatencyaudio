@@ -1,0 +1,2 @@
+/Users/patrick_okeefe/XCode Projects/AudioThrough/aurio_helper.cpp:23: error: conflicting declaration 'SInt32 convertedFFTData [512]'
+/Users/patrick_okeefe/XCode Projects/AudioThrough/aurio_helper.h:23: error: 'convertedFFTData' has a previous declaration as 'SInt32* convertedFFTData []'
