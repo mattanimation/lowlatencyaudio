@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>files</key>
+	<dict>
+		<key>AudioThroughViewController.nib</key>
+		<data>
+		Eyn20isAlPSkt8rGBy/rVQgn+dc=
+		</data>
+		<key>MainWindow.nib</key>
+		<data>
+		gmEcBw2EG/VQWoYbhnf0/KV/j8E=
+		</data>
+		<key>PkgInfo</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>SniperRaptorJesus.jpg</key>
+		<data>
+		XqFDIpYn8iNi7tMBhq112B3V9kg=
+		</data>
+		<key>embedded.mobileprovision</key>
+		<data>
+		5QvDZPRetXUK32S+O2+EcRQivMw=
+		</data>
+	</dict>
+	<key>rules</key>
+	<dict>
+		<key>.*</key>
+		<true/>
+		<key>Info.plist</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>10</real>
+		</dict>
+		<key>ResourceRules.plist</key>
+		<dict>
+			<key>omit</key>
+			<true/>
+			<key>weight</key>
+			<real>100</real>
+		</dict>
+	</dict>
+</dict>
+</plist>
