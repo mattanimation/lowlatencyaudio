@@ -4,14 +4,13 @@
  
  Abstract: Helper functions for manipulating the remote i/o audio unit
  
-*/
+ */
 
 #include <AudioToolbox/AudioToolbox.h>
 #include <AudioUnit/AudioUnit.h>
 #include <stdio.h>
 
 #include "CAXException.h"
-#include "CAStreamBasicDescription.h"
 #include "aurio_helper.h"
 
 #define kInputBus  1
@@ -58,28 +57,15 @@ int SetupRemoteIO (AudioUnit& inRemoteIOUnit, AURenderCallbackStruct inRenderPro
 		AudioComponent comp = AudioComponentFindNext(NULL, &desc);
 		
 		XThrowIfError(AudioComponentInstanceNew(comp, &inRemoteIOUnit), "couldn't open the remote I/O unit");
-
+		
 		UInt32 one = 1;
 		XThrowIfError(AudioUnitSetProperty(inRemoteIOUnit, kAudioOutputUnitProperty_EnableIO, kAudioUnitScope_Input, kInputBus, &one, sizeof(one)), "couldn't enable input on the remote I/O unit");
-	
+		
 		XThrowIfError(AudioUnitSetProperty(inRemoteIOUnit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Global, kOutputBus, &inRenderProc, sizeof(inRenderProc)), "couldn't set remote i/o render callback");
 		
 		UInt32 size = sizeof(outFormat);
 		XThrowIfError(AudioUnitGetProperty(inRemoteIOUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, kOutputBus, &outFormat, &size), "couldn't get the remote I/O unit's output client format");
 		XThrowIfError(AudioUnitSetProperty(inRemoteIOUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, kInputBus, &outFormat, sizeof(outFormat)), "couldn't set the remote I/O unit's input client format");
-
-		// Disable buffer allocation for the recorder
-		
-		/*UInt32 flag = 0;
-		
-		XThrowIfError(AudioUnitSetProperty(inRemoteIOUnit, 
-										   kAudioUnitProperty_ShouldAllocateBuffer,
-										   kAudioUnitScope_Output, 
-										   kInputBus,
-										   &flag,
-										   sizeof(flag)), "Couldn't Tell it not to allocate buffer");
-		
-		*/
 		
 		
 		XThrowIfError(AudioUnitInitialize(inRemoteIOUnit), "couldn't initialize the remote I/O unit");

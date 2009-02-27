@@ -12,7 +12,6 @@
 
 #import "FFTBufferManager.h"
 #import "aurio_helper.h"
-#import "CAStreamBasicDescription.h"
 #include <libkern/OSAtomic.h>
 
 #ifndef CLAMP
@@ -40,17 +39,19 @@ inline double linearInterp(double valA, double valB, double fract)
 	int							unitIsRunning;
 	FFTBufferManager			*fftBufferManager;
 	DCRejectionFilter			*dcFilter;
-	CAStreamBasicDescription	thruFormat;
 	Float64						hwSampleRate;
 	
 	AURenderCallbackStruct		inputProc;
+	AudioStreamBasicDescription audioFormat;
 	
 	int32_t						l_fftData[kDefaultFFTBufferSize/2];
 	NSTimer						*sweetTimer;
-
+	
 	BOOL						write;
 	NSMutableArray				*fftArray;
-
+	
+	float						gain;
+	
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
@@ -64,6 +65,8 @@ inline double linearInterp(double valA, double valB, double fract)
 @property int						unitIsRunning;
 @property BOOL						mute, write;
 @property AURenderCallbackStruct	inputProc;
+@property AudioStreamBasicDescription audioFormat;
+@property float						gain;
 
 @property (nonatomic, retain)	NSMutableArray				*fftArray;
 

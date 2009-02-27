@@ -15,17 +15,21 @@
 
 @interface AudioThroughViewController : UIViewController {
 	IBOutlet UISwitch *ourSwitch;
-	IBOutlet UILabel *freqLabel;
+	IBOutlet UISlider *slider;
 	AudioThroughAppDelegate *appDelegateReference;	
+	
+	IBOutlet UILabel *freqLabel;
+	
 }
 
 @property (nonatomic, retain) IBOutlet UISwitch *ourSwitch;
 @property (nonatomic, retain) IBOutlet UILabel *freqLabel;
-@property (nonatomic, retain) 	AudioThroughAppDelegate *appDelegateReference;	
-
+@property (nonatomic, retain) AudioThroughAppDelegate *appDelegateReference;	
+@property (nonatomic, retain) IBOutlet UISlider *slider;
 
 - (IBAction)saveSomeData:(id)sender;
 - (IBAction)toggleMute:(id)sender;
+- (IBAction)sliderChanged:(id)sender;
 - (void)changeLabel:(int)newFrequency;
 
 @end
