@@ -4,13 +4,77 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>AudioThroughViewController.nib</key>
+		<key>.svn/all-wcprops</key>
+		<data>
+		Fnv2yrBipsfChktLxo0f+THDebg=
+		</data>
+		<key>.svn/entries</key>
+		<data>
+		40rA2WWM4UZjgZV8kOiiWjOX4/g=
+		</data>
+		<key>.svn/format</key>
+		<data>
+		E2VxtBqhStwQxfPJh9Q8Asj11Jg=
+		</data>
+		<key>.svn/prop-base/AudioThrough.svn-base</key>
+		<data>
+		h+znyyYfCSyvSafI7cmAjOB5io8=
+		</data>
+		<key>.svn/prop-base/AudioThroughViewController.nib.svn-base</key>
+		<data>
+		oChJQ/jd/mnO7JCDPmbZa99Kl/A=
+		</data>
+		<key>.svn/prop-base/CodeResources.svn-base</key>
+		<data>
+		7br256i0hvkOdRVW5rcNry1wIoc=
+		</data>
+		<key>.svn/prop-base/MainWindow.nib.svn-base</key>
+		<data>
+		oChJQ/jd/mnO7JCDPmbZa99Kl/A=
+		</data>
+		<key>.svn/prop-base/SniperRaptorJesus.jpg.svn-base</key>
+		<data>
+		oChJQ/jd/mnO7JCDPmbZa99Kl/A=
+		</data>
+		<key>.svn/prop-base/embedded.mobileprovision.svn-base</key>
+		<data>
+		oChJQ/jd/mnO7JCDPmbZa99Kl/A=
+		</data>
+		<key>.svn/text-base/AudioThrough.svn-base</key>
+		<data>
+		ExV8m5dB98lwWSozaAKiLNxMIKs=
+		</data>
+		<key>.svn/text-base/AudioThroughViewController.nib.svn-base</key>
 		<data>
 		Eyn20isAlPSkt8rGBy/rVQgn+dc=
 		</data>
-		<key>MainWindow.nib</key>
+		<key>.svn/text-base/CodeResources.svn-base</key>
+		<data>
+		2mhFJ6WxLloef0dtYZ77UlpuBZ0=
+		</data>
+		<key>.svn/text-base/MainWindow.nib.svn-base</key>
 		<data>
 		gmEcBw2EG/VQWoYbhnf0/KV/j8E=
+		</data>
+		<key>.svn/text-base/PkgInfo.svn-base</key>
+		<data>
+		n57qDP4tZfLD1rCS43W0B4LQjzE=
+		</data>
+		<key>.svn/text-base/SniperRaptorJesus.jpg.svn-base</key>
+		<data>
+		XqFDIpYn8iNi7tMBhq112B3V9kg=
+		</data>
+		<key>.svn/text-base/embedded.mobileprovision.svn-base</key>
+		<data>
+		5QvDZPRetXUK32S+O2+EcRQivMw=
+		</data>
+		<key>AudioThroughViewController.nib</key>
+		<data>
+		UKO7N1cGBaOcByu8vBTBfEgAH8o=
+		</data>
+		<key>MainWindow.nib</key>
+		<data>
+		/jpou042I8E26JG2EeQmnT4UDto=
 		</data>
 		<key>PkgInfo</key>
 		<data>

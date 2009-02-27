@@ -27,7 +27,8 @@
 @synthesize inputProc;
 @synthesize write;
 @synthesize fftArray;
-
+@synthesize audioFormat;
+@synthesize gain;
 
 
 
@@ -45,7 +46,7 @@ void propListener(	void *                  inClientData,
 			// if there was a route change, we need to dispose the current rio unit and create a new one
 			XThrowIfError(AudioComponentInstanceDispose(THIS->rioUnit), "couldn't dispose remote i/o unit");		
 			
-			SetupRemoteIO(THIS->rioUnit, THIS->inputProc, THIS->thruFormat);
+			SetupRemoteIO(THIS->rioUnit, THIS->inputProc, THIS->audioFormat);
 			
 			UInt32 size = sizeof(THIS->hwSampleRate);
 			XThrowIfError(AudioSessionGetProperty(kAudioSessionProperty_CurrentHardwareSampleRate, &size, &THIS->hwSampleRate), "couldn't get new sample rate");
@@ -102,7 +103,7 @@ static OSStatus	PerformThru(
 	
 	AudioThroughAppDelegate *THIS = (AudioThroughAppDelegate *)inRefCon;
 	
-
+	
 	
 	
 	OSStatus err = AudioUnitRender(THIS->rioUnit, ioActionFlags, inTimeStamp, 1, inNumberFrames, ioData);
@@ -129,7 +130,14 @@ static OSStatus	PerformThru(
 		THIS->write = NO;
 	}
 	
-
+	//take care of gain
+	SInt32 *data_ptr = (SInt32 *)(ioData->mBuffers[0].mData);
+	for (i=0; i<inNumberFrames; i++)
+	{
+		data_ptr[i] *=THIS->gain;
+	}
+	
+	
 	if (THIS->fftBufferManager == NULL) return noErr;
 	
 	if (THIS->fftBufferManager->NeedsNewAudioData())
@@ -151,16 +159,10 @@ static OSStatus	PerformThru(
 	// Setting this to YES keeps the iPhone/iPod Touch from locking (screen turning off)
 	// There's no reason to do it here, but I thought I'd comment on what it does because it show up in aurioTouch
 	application.idleTimerDisabled = YES;
-	
-	
-	NSLog(@"Attempting to Initialize RemoteIO...");
-	
-	
-	
-	// mute should NOT be on at launch
 	self.mute = NO;
+	self.gain = 1.0;
 	
-	// Initialize our remote i/o unit
+	
 	
 	inputProc.inputProc = PerformThru;
 	inputProc.inputProcRefCon = self;
@@ -170,7 +172,7 @@ static OSStatus	PerformThru(
 	try {	
 		
 		// Initialize and configure the audio session
-		XThrowIfError(AudioSessionInitialize(NULL, NULL, rioInterruptionListener, self), "couldn't initialize audio session");
+		XThrowIfError(AudioSessionInitialize(NULL, NULL, rioInterruptionListener, self.rioUnit), "couldn't initialize audio session");
 		XThrowIfError(AudioSessionSetActive(true), "couldn't set audio session active\n");
 		
 		
@@ -192,30 +194,25 @@ static OSStatus	PerformThru(
 		NSLog(@"Hardware sample rate is: %f", hwSampleRate);
 		
 		
-			//Hello
-		
-		
 		//Describe audio format
-		AudioStreamBasicDescription audioFormat;
+		//AudioStreamBasicDescription audioFormat;
 		audioFormat.mSampleRate = 44100.0;
 		audioFormat.mFormatID = kAudioFormatLinearPCM;
 		audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
 		audioFormat.mFramesPerPacket = 1;
-		audioFormat.mChannelsPerFrame = 1;
+		audioFormat.mChannelsPerFrame = 1;//1
 		audioFormat.mBitsPerChannel = 16;
 		audioFormat.mBytesPerPacket = 2;
-		audioFormat.mBytesPerFrame = 2;
-
-		
+		audioFormat.mBytesPerFrame = 2;//2
 		
 		
 		// Most important call in the entire try. SetupRemoteIO is defined in aurio_helper.h
 		XThrowIfError(SetupRemoteIO(rioUnit, inputProc, audioFormat), "couldn't setup remote i/o unit");
-
 		
-		dcFilter = new DCRejectionFilter[thruFormat.NumberChannels()];
 		
-		XThrowIfError(AudioOutputUnitStart(rioUnit), "couldn't start remote i/o unit");
+		dcFilter = new DCRejectionFilter[audioFormat.mChannelsPerFrame];
+		
+		AudioOutputUnitStart(rioUnit);
 		unitIsRunning = 1;
 	}
 	catch (CAXException &e) {
@@ -239,79 +236,72 @@ static OSStatus	PerformThru(
 	//Start Initialization Timer that calls our FFT Stuff
 	sweetTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(doSomething) userInfo:nil repeats:YES];
 	self.fftArray = [[NSMutableArray alloc] initWithCapacity:kNumDrawBuffers];
-
+	
 }
 
 
 // Is this method accomplishing anything? Most likely not. You can see the printf statement commented out below. It just kept printing 0 for the value...
 // Somehow this gets our FFT data in a usable form. You guys are probably much better than I am with this stuff so please let me know if you figure something out.
 - (void)doSomething {
+	
+	
+	
+	if (fftBufferManager->HasNewAudioData())
+	{
+		if (fftBufferManager->ComputeFFT(l_fftData))
+			[self setFFTData:l_fftData length:kDefaultFFTBufferSize / 2];
+		else
+			hasNewFFTData = NO;
+	}
+	
+	if (hasNewFFTData)
+	{
 		
-
-			
-		if (fftBufferManager->HasNewAudioData())
+		[fftArray removeAllObjects];
+		
+		int y, maxY;
+		maxY = drawBufferLen;
+		for (y=0; y<maxY; y++)
 		{
-			if (fftBufferManager->ComputeFFT(l_fftData))
-				[self setFFTData:l_fftData length:kDefaultFFTBufferSize / 2];
-			else
-				hasNewFFTData = NO;
+			CGFloat yFract = (CGFloat)y / (CGFloat)(maxY - 1);
+			CGFloat fftIdx = yFract * ((CGFloat)fftLength);
+			
+			double fftIdx_i, fftIdx_f;
+			fftIdx_f = modf(fftIdx, &fftIdx_i);
+			
+			SInt8 fft_l, fft_r;//8
+			CGFloat fft_l_fl, fft_r_fl;
+			CGFloat interpVal;
+			
+			fft_l = (fftData[(int)fftIdx_i] & 0xFF000000) >> 24;
+			fft_r = (fftData[(int)fftIdx_i + 1] & 0xFF000000) >> 24;
+			fft_l_fl = (CGFloat)(fft_l + 80) / 64.;
+			fft_r_fl = (CGFloat)(fft_r + 80) / 64.;
+			interpVal = fft_l_fl * (1. - fftIdx_f) + fft_r_fl * fftIdx_f;
+			
+			interpVal = CLAMP(0., interpVal, 1.);
+			
+			
+			[fftArray addObject:[NSNumber numberWithFloat:(interpVal*120)]];
+			
 		}
 		
-		if (hasNewFFTData)
-		{
+		int index = 0, maxIndex = 0;
+		NSNumber *max = [NSNumber numberWithFloat:0.0];
+		
+		for (NSNumber *element in fftArray) {
 			
-			[fftArray removeAllObjects];
-			
-			int y, maxY;
-			maxY = drawBufferLen;
-			for (y=0; y<maxY; y++)
-			{
-				CGFloat yFract = (CGFloat)y / (CGFloat)(maxY - 1);
-				CGFloat fftIdx = yFract * ((CGFloat)fftLength);
-				
-				double fftIdx_i, fftIdx_f;
-				fftIdx_f = modf(fftIdx, &fftIdx_i);
-				
-				SInt8 fft_l, fft_r;//8
-				CGFloat fft_l_fl, fft_r_fl;
-				CGFloat interpVal;
-				
-				fft_l = (fftData[(int)fftIdx_i] & 0xFF000000) >> 24;
-				fft_r = (fftData[(int)fftIdx_i + 1] & 0xFF000000) >> 24;
-				fft_l_fl = (CGFloat)(fft_l + 80) / 64.;
-				fft_r_fl = (CGFloat)(fft_r + 80) / 64.;
-				interpVal = fft_l_fl * (1. - fftIdx_f) + fft_r_fl * fftIdx_f;
-				
-				interpVal = CLAMP(0., interpVal, 1.);
-
-								
-				[fftArray addObject:[NSNumber numberWithFloat:(interpVal*120)]];
-			
+			if ([max compare:element] == NSOrderedAscending && (index < 500)){
+				maxIndex = index; 
+				max = element;
 			}
-			
-			
-			//if (self.write) {
-				
-				int index = 0, maxIndex = 0;
-				NSNumber *max = [NSNumber numberWithFloat:0.0];
-				
-				for (NSNumber *element in fftArray) {
-					
-					if ([max compare:element] == NSOrderedAscending && (index < 500)){
-						maxIndex = index; 
-						max = element;
-					}
-					index++;
-				}
-				
-				//NSLog(@"The hwSampleRate is %f, and the number of buffers is %d", hwSampleRate,kDefaultFFTBufferSize);
-				
-				[viewController changeLabel:(int)(maxIndex*(hwSampleRate/2)/kDefaultFFTBufferSize)];
-				
-			//	self.write = NO;
-			//}
+			index++;
 		}
 		
+		
+		[viewController changeLabel:(int)(maxIndex*(hwSampleRate/2)/kDefaultFFTBufferSize)];
+	}
+	
 	
 }
 

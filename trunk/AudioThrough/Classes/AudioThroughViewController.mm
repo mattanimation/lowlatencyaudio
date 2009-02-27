@@ -15,6 +15,7 @@
 @synthesize ourSwitch;
 @synthesize appDelegateReference;
 @synthesize freqLabel;
+@synthesize slider;
 
 
 
@@ -38,7 +39,11 @@
 	
 }
 
-
+- (IBAction)sliderChanged:(id)sender {
+	NSLog(@"sliderChanged");
+	self.appDelegateReference.gain = [slider value];
+	
+}
 
 - (IBAction)toggleMute:(id)sender {
 	NSLog(@"toggleMute was called");
@@ -49,8 +54,8 @@
 - (void)changeLabel:(int)newFrequency {
 	
 	self.freqLabel.text = [NSString stringWithFormat:@"%d Hz",newFrequency,nil];
-
-
+	
+	
 	
 }
 
@@ -58,19 +63,19 @@
 
 - (void)dealloc
 {	
-		
+	
 	[super dealloc];
 }
 
 
 
 /*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
+ // Override to allow orientations other than the default portrait orientation.
+ - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+ // Return YES for supported orientations
+ return (interfaceOrientation == UIInterfaceOrientationPortrait);
+ }
+ */
 
 
 - (void)didReceiveMemoryWarning {
